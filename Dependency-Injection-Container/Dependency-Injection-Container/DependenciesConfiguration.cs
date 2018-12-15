@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dependency_Injection_Container
 {
-    class DependenciesConfiguration
+    public class DependenciesConfiguration
     {
         protected readonly Dictionary<Type, List<Implementation>> implementations;
 
