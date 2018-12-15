@@ -10,11 +10,13 @@ namespace Dependency_Injection_Container
     {
         public Type Type { get; private set; }
         public bool IsSingleton { get; private set; }
+        public string Name { get; private set; }
 
-        public Implementation(Type type, bool isSingleton)
+        public Implementation(Type type, bool isSingleton, string name)
         {
             Type = type;
             IsSingleton = isSingleton;
+            Name = name;
         }
     }
 }
