@@ -22,7 +22,8 @@ namespace Dependency_Injection_Container
 
         public void Register(Type dependencyType, Type implementationType, bool isSingleton = false, string name = null)
         {
-            if (!dependencyType.IsAssignableFrom(implementationType))
+            if (dependencyType.IsAssignableFrom(implementationType) 
+                || IsAssignableToGenericType(implementationType, dependencyType))
             {
                 Implementation tempImplementation = new Implementation(implementationType, isSingleton, name);
 
@@ -55,6 +56,26 @@ namespace Dependency_Injection_Container
             {
                 throw new ApplicationException("Types are incompatible");
             }
+        }
+
+        private static bool IsAssignableToGenericType(Type givenType, Type genericType)
+        {
+            var interfaceTypes = givenType.GetInterfaces();
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                    return true;
+            }
+
+            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+                return true;
+
+            Type baseType = givenType.BaseType;
+            if (baseType == null)
+                return false;
+
+            return IsAssignableToGenericType(baseType, genericType);
         }
 
         public IEnumerable<Implementation> GetImplementationType(Type type)

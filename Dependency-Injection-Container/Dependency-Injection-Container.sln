@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dependency-Injection-Container", "Dependency-Injection-Container\Dependency-Injection-Container.csproj", "{FE5952E2-B52C-4321-9853-C5F2BB4B3AC9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICUnitTests", "DICUnitTests\DICUnitTests.csproj", "{69BFE8AC-7E60-4632-A3AD-02C98107C7F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{FE5952E2-B52C-4321-9853-C5F2BB4B3AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE5952E2-B52C-4321-9853-C5F2BB4B3AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE5952E2-B52C-4321-9853-C5F2BB4B3AC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69BFE8AC-7E60-4632-A3AD-02C98107C7F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69BFE8AC-7E60-4632-A3AD-02C98107C7F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69BFE8AC-7E60-4632-A3AD-02C98107C7F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69BFE8AC-7E60-4632-A3AD-02C98107C7F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
