@@ -97,7 +97,8 @@ namespace Dependency_Injection_Container
                 IEnumerable<Implementation> result = new List<Implementation>(dependencyImplementations);
                 if (type.IsGenericType)
                 {
-                    result = result.Where((impl) => impl.Type.IsGenericTypeDefinition || type.IsAssignableFrom(impl.Type));
+                    result = result.Where((impl) => impl.Type.IsGenericTypeDefinition 
+                                                    || type.IsAssignableFrom(impl.Type));
                 }
 
                 return result;
@@ -106,13 +107,6 @@ namespace Dependency_Injection_Container
             {
                 return new List<Implementation>();
             }
-        }
-
-        public Implementation GetImplementedType(Type type)
-        {
-            return implementations.TryGetValue(type, out var implementedTypes)
-                ? implementedTypes.FirstOrDefault()
-                : null;
         }
     }
 }

@@ -68,5 +68,68 @@ namespace DICUnitTests
             CollectionAssert.AreEquivalent(expectedRegisteredTypes,
                 registeredImplementations.Select((implementation) => implementation.Type).ToList());
         }
+
+        [TestMethod]
+        public void GenericResolveTest()
+        {
+            dependenciesConfiguration.Register<ITestGenericInterface<ITestInterface>, TestGenericImpl1<ITestInterface>>();
+            dependenciesConfiguration.Register<ITestGenericInterface<ITestInterface>, TestGenericImpl2<ITestInterface>>();
+            dependenciesConfiguration.Register<ITestGenericInterface<ITestInterface>, TestGenericImpl3<ITestInterface>>();
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+            var resolvedInstances = dependencyProvider.Resolve<ITestGenericInterface<ITestInterface>>();
+            Assert.AreEqual(3, resolvedInstances.Count());
+
+            List<Type> expectedRegisteredTypes = new List<Type>
+            {
+                typeof(TestGenericImpl1<ITestInterface>),
+                typeof(TestGenericImpl2<ITestInterface>),
+                typeof(TestGenericImpl3<ITestInterface>)
+            };
+            CollectionAssert.AreEquivalent(expectedRegisteredTypes,
+                resolvedInstances.Select((resolvedInstance) => resolvedInstance.GetType()).ToList());
+        }
+
+        [TestMethod]
+        public void OpenGenericResolveTest()
+        {
+            dependenciesConfiguration.Register<ITestInterface, TestImpl2>();
+
+            dependenciesConfiguration.Register(typeof(ITestGenericInterface<>), typeof(TestGenericImpl1<>));
+            dependenciesConfiguration.Register(typeof(ITestGenericInterface<>), typeof(TestGenericImpl2<>));
+            dependenciesConfiguration.Register(typeof(ITestGenericInterface<>), typeof(TestGenericImpl3<>));
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+            var resolvedInstances = dependencyProvider.Resolve<ITestGenericInterface<ITestInterface>>();
+            Assert.AreEqual(3, resolvedInstances.Count());
+
+            List<Type> expectedRegisteredTypes = new List<Type>
+            {
+                typeof(TestGenericImpl1<ITestInterface>),
+                typeof(TestGenericImpl2<ITestInterface>),
+                typeof(TestGenericImpl3<ITestInterface>)
+            };
+            CollectionAssert.AreEquivalent(expectedRegisteredTypes,
+                resolvedInstances.Select((resolvedInstance) => resolvedInstance.GetType()).ToList());
+
+            Assert.AreEqual(typeof(TestImpl2),
+                resolvedInstances.OfType<TestGenericImpl2<ITestInterface>>().First().field.GetType());
+        }
+
+        [TestMethod]
+        public void NonGenericResolveTest()
+        {
+            dependenciesConfiguration.Register<ITestInterface, TestImpl1>();
+            dependenciesConfiguration.Register<ITestInterface, TestImpl2>();
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+            var resolvedInstances = dependencyProvider.Resolve<ITestInterface>();
+            Assert.AreEqual(2, resolvedInstances.Count());
+
+            List<Type> expectedRegisteredTypes = new List<Type>
+            {
+                typeof(TestImpl1),
+                typeof(TestImpl2)
+            };
+            CollectionAssert.AreEquivalent(expectedRegisteredTypes,
+                resolvedInstances.Select((resolvedInstance) => resolvedInstance.GetType()).ToList());
+        }
     }
 }

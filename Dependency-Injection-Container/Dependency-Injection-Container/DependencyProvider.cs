@@ -5,18 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Reflection;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Dependency_Injection_Container
 {
     public class DependencyProvider
     {
         protected readonly DependenciesConfiguration dependenciesConfiguration;
-        private readonly Stack<Type> stack = new Stack<Type>();
+        private Stack<Type> stack;
+        //private readonly Stack<Type> stack;
         private static readonly object syncObj = new object();
 
         public DependencyProvider(DependenciesConfiguration dc)
         {
             dependenciesConfiguration = dc;
+            stack = new Stack<Type>();
         }
 
         public IEnumerable<TDependency> Resolve<TDependency>(string name = null)
@@ -26,17 +30,55 @@ namespace Dependency_Injection_Container
             {
                 var dependencyType = typeof(TDependency);
 
+                stack = new Stack<Type>();
+
                 return Resolve(dependencyType, name).OfType<TDependency>();
             }
         }
 
         private IEnumerable<object> Resolve(Type dependency, string name)
         {
-            if (dependency.IsGenericType && dependency.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (dependency.IsGenericType || dependency.IsGenericTypeDefinition)
             {
                 return ResolveGeneric(dependency, name);
             }
+            else
+            {
+                return ResolveNonGeneric(dependency, name);
+            }
+        }
 
+        private IEnumerable<object> ResolveGeneric(Type dependency, string name)
+        {
+            List<object> result = new List<object>();
+            IEnumerable<Implementation> implementationContainers 
+                = dependenciesConfiguration.GetImplementationType(dependency)
+                .Where((impl) => !stack.Contains(impl.Type));
+
+            if (name != null)
+            {
+                implementationContainers = implementationContainers
+                    .Where((implementation) => implementation.Name == name);
+            }
+
+            object instance;
+
+            foreach (Implementation implementationContainer in implementationContainers)
+            {
+                instance = CreateInstanceByConstructor(implementationContainer.Type.GetGenericTypeDefinition()
+                    .MakeGenericType(dependency.GenericTypeArguments));
+
+                if (instance != null)
+                {
+                    result.Add(instance);
+                }
+            }
+
+            return result;
+        }
+
+        private IEnumerable<object> ResolveNonGeneric(Type dependency, string name)
+        {
             if (dependency.IsValueType)
             {
                 return new List<object>
@@ -45,13 +87,17 @@ namespace Dependency_Injection_Container
                 };
             }
 
-            IEnumerable<Implementation> implementationContainers = dependenciesConfiguration.GetImplementationType(dependency);
+            List<object> result = new List<object>();
+            IEnumerable<Implementation> implementationContainers
+               = dependenciesConfiguration.GetImplementationType(dependency)
+                .Where((impl) => !stack.Contains(impl.Type));
+
             if (name != null)
             {
                 implementationContainers = implementationContainers
                     .Where((implementation) => implementation.Name == name);
             }
-            List<object> result = new List<object>();
+            
             object dependencyInstance;
 
             foreach (Implementation container in implementationContainers)
@@ -82,31 +128,6 @@ namespace Dependency_Injection_Container
             }
             return result;
         }
-                
-        private IEnumerable<object> ResolveGeneric(Type dependency, string name)
-        {
-            List<object> result = new List<object>();
-            IEnumerable<Implementation> implementationContainers = dependenciesConfiguration.GetImplementationType(dependency);
-            if (name != null)
-            {
-                implementationContainers = implementationContainers
-                    .Where((implementation) => implementation.Name == name);
-            }
-
-            object instance;
-            foreach (Implementation implementationContainer in implementationContainers)
-            {
-                instance = CreateInstanceByConstructor(implementationContainer.Type.GetGenericTypeDefinition()
-                    .MakeGenericType(dependency.GenericTypeArguments));
-
-                if (instance != null)
-                {
-                    result.Add(instance);
-                }
-            }
-
-            return result;
-        }
 
         protected object CreateInstanceByConstructor(Type type)
         {
@@ -127,16 +148,8 @@ namespace Dependency_Injection_Container
                 {
                     foreach (ParameterInfo constructorParameter in constructors[constructor].GetParameters())
                     {
-                        //parameters.Add(Resolve(constructorParameter.ParameterType,
-                        //    constructorParameter.GetCustomAttribute<Implementation>()?.Name).FirstOrDefault());
-                        var registeredType = dependenciesConfiguration.GetImplementedType(constructorParameter.ParameterType);
-                        if (registeredType == null)
-                        {
-                            throw new Exception($"Unregistered type {constructorParameter.ParameterType.FullName}");
-                        }
-
-                        //parameters.Add(Resolve(constructorParameter.ParameterType, registeredType.Name));
-                        parameters.Add(Resolve(constructorParameter.ParameterType, registeredType.Name).FirstOrDefault());
+                        parameters.Add(Resolve(constructorParameter.ParameterType,
+                            constructorParameter.GetCustomAttribute<DependencyKey>()?.Name).FirstOrDefault());
                     }
                     instance = constructors[constructor].Invoke(parameters.ToArray());
                 }

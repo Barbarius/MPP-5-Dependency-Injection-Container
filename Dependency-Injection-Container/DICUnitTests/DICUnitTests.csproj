@@ -49,10 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DICUnitTest.cs" />
+    <Compile Include="NamedConstructImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestGenericImpl1.cs" />
     <Compile Include="TestGenericImpl2.cs" />
     <Compile Include="ITestGenericInterface.cs" />
+    <Compile Include="TestGenericImpl3.cs" />
     <Compile Include="TestImpl1.cs" />
     <Compile Include="TestImpl2.cs" />
     <Compile Include="ITestInterface.cs" />

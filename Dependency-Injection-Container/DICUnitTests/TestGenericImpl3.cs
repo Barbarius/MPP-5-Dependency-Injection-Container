@@ -6,14 +6,8 @@ using System.Threading.Tasks;
 
 namespace DICUnitTests
 {
-    class TestGenericImpl2<T> : ITestGenericInterface<T>
+    class TestGenericImpl3<T> : ITestGenericInterface<T>
         where T : ITestInterface
     {
-        public T field;
-
-        public TestGenericImpl2(T par)
-        {
-            field = par;
-        }
     }
 }

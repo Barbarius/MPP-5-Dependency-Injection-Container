@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DependenciesConfiguration.cs" />
+    <Compile Include="DependencyKey.cs" />
     <Compile Include="DependencyProvider.cs" />
     <Compile Include="Implementation.cs" />
   </ItemGroup>
