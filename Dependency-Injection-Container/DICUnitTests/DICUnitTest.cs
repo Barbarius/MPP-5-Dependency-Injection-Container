@@ -131,5 +131,29 @@ namespace DICUnitTests
             CollectionAssert.AreEquivalent(expectedRegisteredTypes,
                 resolvedInstances.Select((resolvedInstance) => resolvedInstance.GetType()).ToList());
         }
+
+        [TestMethod]
+        public void SingletonResolveTest()
+        {
+            dependenciesConfiguration.Register<ITestInterface, TestImpl1>(true);
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+
+            Assert.ReferenceEquals(dependencyProvider.Resolve<ITestInterface>().First(),
+                dependencyProvider.Resolve<ITestInterface>().First());
+        }
+
+        [TestMethod]
+        public void NamedConstructorResolveTest()
+        {
+            dependenciesConfiguration.Register<ITestInterface, TestImpl1>(name: "1");
+            dependenciesConfiguration.Register<ITestInterface, TestImpl2>(name: "2");
+            dependenciesConfiguration.Register<ITestInterface, NamedConstructImpl>();
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+            var instances = dependencyProvider.Resolve<ITestInterface>().OfType<NamedConstructImpl>();
+
+            Assert.AreEqual(1, instances.Count());
+            Assert.AreEqual(typeof(TestImpl1), instances.First().intfImpl1.GetType());
+            Assert.AreEqual(typeof(TestImpl2), instances.First().intfImpl2.GetType());
+        }
     }
 }
