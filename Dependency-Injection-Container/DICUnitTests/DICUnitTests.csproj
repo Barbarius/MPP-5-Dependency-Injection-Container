@@ -48,6 +48,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractBaseImpl.cs" />
+    <Compile Include="AbstractImpl.cs" />
     <Compile Include="DICUnitTest.cs" />
     <Compile Include="NamedConstructImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

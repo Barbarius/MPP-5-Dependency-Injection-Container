@@ -155,5 +155,16 @@ namespace DICUnitTests
             Assert.AreEqual(typeof(TestImpl1), instances.First().intfImpl1.GetType());
             Assert.AreEqual(typeof(TestImpl2), instances.First().intfImpl2.GetType());
         }
+
+        [TestMethod]
+        public void AbstractClassTest()
+        {
+            dependenciesConfiguration.Register<AbstractBaseImpl, AbstractImpl>();
+
+            dependencyProvider = new DependencyProvider(dependenciesConfiguration);
+            var instance = dependencyProvider.Resolve<AbstractBaseImpl>();
+
+            Assert.IsNotNull(instance);
+        }
     }
 }
