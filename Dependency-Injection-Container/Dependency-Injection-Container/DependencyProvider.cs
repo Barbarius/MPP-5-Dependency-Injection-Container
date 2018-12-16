@@ -34,7 +34,7 @@ namespace Dependency_Injection_Container
         {
             if (dependency.IsGenericType && dependency.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
-                return ResolveGeneric(dependency);
+                return ResolveGeneric(dependency, name);
             }
 
             if (dependency.IsValueType)
@@ -83,9 +83,29 @@ namespace Dependency_Injection_Container
             return result;
         }
                 
-        private IEnumerable<object> ResolveGeneric(Type dependency)
+        private IEnumerable<object> ResolveGeneric(Type dependency, string name)
         {
+            List<object> result = new List<object>();
+            IEnumerable<Implementation> implementationContainers = dependenciesConfiguration.GetImplementationType(dependency);
+            if (name != null)
+            {
+                implementationContainers = implementationContainers
+                    .Where((implementation) => implementation.Name == name);
+            }
 
+            object instance;
+            foreach (Implementation implementationContainer in implementationContainers)
+            {
+                instance = CreateInstanceByConstructor(implementationContainer.Type.GetGenericTypeDefinition()
+                    .MakeGenericType(dependency.GenericTypeArguments));
+
+                if (instance != null)
+                {
+                    result.Add(instance);
+                }
+            }
+
+            return result;
         }
 
         protected object CreateInstanceByConstructor(Type type)
