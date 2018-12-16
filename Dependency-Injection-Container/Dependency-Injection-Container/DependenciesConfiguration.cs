@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dependency_Injection_Container
 {
@@ -57,6 +55,43 @@ namespace Dependency_Injection_Container
             {
                 throw new ApplicationException("Types are incompatible");
             }
+        }
+
+        public IEnumerable<Implementation> GetImplementationType(Type type)
+        {
+            Type collectionType;
+
+            if (type.IsGenericType)
+            {
+                collectionType = type.GetGenericTypeDefinition();
+            }
+            else
+            {
+                collectionType = type;
+            }
+
+            if (implementations.TryGetValue(collectionType,
+                out List<Implementation> dependencyImplementations))
+            {
+                IEnumerable<Implementation> result = new List<Implementation>(dependencyImplementations);
+                if (type.IsGenericType)
+                {
+                    result = result.Where((impl) => impl.Type.IsGenericTypeDefinition || type.IsAssignableFrom(impl.Type));
+                }
+
+                return result;
+            }
+            else
+            {
+                return new List<Implementation>();
+            }
+        }
+
+        public Implementation GetImplementedType(Type type)
+        {
+            return implementations.TryGetValue(type, out var implementedTypes)
+                ? implementedTypes.FirstOrDefault()
+                : null;
         }
     }
 }
